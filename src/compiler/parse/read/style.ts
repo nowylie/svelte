@@ -11,21 +11,20 @@ export default function read_style(parser: Parser, start: number, attributes: No
 
 	let ast;
 
-	try {
-		ast = parse(styles, {
-			positions: true,
-			offset: content_start,
-		});
-	} catch (err) {
-		if (err.name === 'CssSyntaxError') {
-			parser.error({
-				code: `css-syntax-error`,
-				message: err.message
-			}, err.offset);
-		} else {
-			throw err;
+	ast = parse(styles, {
+		positions: true,
+		offset: content_start,
+		onParseError: (err) => {
+			if (err.name === 'SyntaxError') {
+				parser.error({
+					code: `css-syntax-error`,
+					message: err.message
+				}, err.offset);
+			} else {
+				throw err;
+			}
 		}
-	}
+	});
 
 	ast = JSON.parse(JSON.stringify(ast));
 
